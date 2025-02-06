@@ -1,35 +1,47 @@
-import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import React, { useState } from "react";
+import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/");
+      await login(email, password);
+      navigate("/profile"); // Redirect to profile page
     } catch (err) {
-      setError(err.message);
+      setError("Failed to log in. Please check your credentials.");
     }
   };
 
   return (
     <div>
-      <h1>Login</h1>
-      {error && <p>{error}</p>}
-      <form onSubmit={handleLogin}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      <h2>Login</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required 
+        />
         <button type="submit">Login</button>
       </form>
     </div>
   );
-};
+}
 
 export default Login;

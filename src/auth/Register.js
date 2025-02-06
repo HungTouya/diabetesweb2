@@ -1,35 +1,78 @@
-import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import React, { useState } from "react";
+import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const Register = () => {
+function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const { register } = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/");
+      await register(email, password, name, gender, phone, address);
+      navigate("/profile"); // Redirect to profile page
     } catch (err) {
-      setError(err.message);
+      setError("Failed to register. Please try again.");
     }
   };
 
   return (
     <div>
-      <h1>Register</h1>
-      {error && <p>{error}</p>}
-      <form onSubmit={handleRegister}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      <h2>Register</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input 
+          type="text" 
+          placeholder="Full Name" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+          required 
+        />
+        <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required 
+        />
+        <input 
+          type="tel" 
+          placeholder="Phone Number" 
+          value={phone} 
+          onChange={(e) => setPhone(e.target.value)} 
+          required 
+        />
+        <textarea 
+          placeholder="Address" 
+          value={address} 
+          onChange={(e) => setAddress(e.target.value)} 
+          required 
+        ></textarea>
         <button type="submit">Register</button>
       </form>
     </div>
   );
-};
+}
 
 export default Register;
+
