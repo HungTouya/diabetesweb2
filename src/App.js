@@ -12,41 +12,66 @@ import Register from "./auth/Register";
 import "./App.css";
 
 function RequireAuth({ children }) {
-  const { currentUser } = useAuth(); // Get user from AuthContext
-  return currentUser ? children : <Navigate to="/login" replace />;
+  const { user } = useAuth(); // Use "user" instead of "currentUser"
+  return user ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
+  const { user } = useAuth();
+
   return (
     <Router>
+      {user && <Navbar />} {/* Show Navbar only if logged in */}
       <Routes>
+        {/* Redirect root to Home or Login based on auth status */}
+        <Route path="/" element={user ? <Home /> : <Navigate to="/login" replace />} />
+
         {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} /> 
         <Route path="/register" element={<Register />} />
 
         {/* Protected Routes */}
         <Route
-          path="/*"
+          path="/menu"
           element={
             <RequireAuth>
-              <div className="App">
-                <Navbar />
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/menu" element={<Menu />} />
-                  <Route path="/schedule" element={<Schedule />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/recipes/:id" element={<RecipePage />} />
-                </Routes>
-              </div>
+              <Menu />
             </RequireAuth>
           }
         />
+        <Route
+          path="/schedule"
+          element={
+            <RequireAuth>
+              <Schedule />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <Profile />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/recipes/:id"
+          element={
+            <RequireAuth>
+              <RecipePage />
+            </RequireAuth>
+          }
+        />
+
+        {/* Redirect unknown routes to Home if logged in, else Login */}
+        <Route path="*" element={user ? <Navigate to="/" /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
 
 
